@@ -1,0 +1,13 @@
+{
+  "name": "execute-command",
+  "version": "0.0.1",
+  "description": "Execute terminal command with shortcut",
+  "engines": {
+    "atom": "*",
+    "node": "*"
+},
+  "main": "./lib/index.coffee",
+  "repo": "https://github.com/retroverse/execute-command",
+  "bugs": "https://github.com/retroverse/execute-command/issues",
+  "Author": "Ewan Breakey"
+}
