@@ -7,7 +7,7 @@
     "node": "*"
 },
   "main": "./lib/index.coffee",
-  "repo": "https://github.com/retroverse/execute-command",
+  "repository": "https://github.com/retroverse/execute-command",
   "bugs": "https://github.com/retroverse/execute-command/issues",
   "Author": "Ewan Breakey"
 }
