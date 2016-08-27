@@ -1,4 +1,4 @@
-{exec} = require 'child_process'
+{exec, execSync} = require 'child_process'
 fs = require 'fs'
 {CompositeDisposable} = require 'atom'
 
@@ -9,6 +9,9 @@ module.exports = ExecuteCommand =
       command:
          type: 'string'
          default: 'run.cmd'
+      executeSynchronously:
+         type: 'boolean'
+         default: 'true'
       logErrors:
          type: 'boolean'
          default: 'false'
@@ -33,6 +36,7 @@ module.exports = ExecuteCommand =
 
    execute: ->
       comName = atom.config.get('execute-command.command')
+      sync = atom.config.get('execute-command.executeSynchronously')
       logErrors = atom.config.get('execute-command.logErrors')
       errorFn = atom.config.get('execute-command.errorLogFilename')
       errorNt = atom.config.get('execute-command.showErrorNotifications')
@@ -46,7 +50,10 @@ module.exports = ExecuteCommand =
 
       # Execute the command
       console.log "Executing #{com}"
-      exec com
+      unless sync
+         exec com
+      else
+         execSync com
 
       # Does the error file exist
       if logErrors and errorNt
