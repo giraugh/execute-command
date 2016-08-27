@@ -9,6 +9,9 @@ module.exports = ExecuteCommand =
       command:
          type: 'string'
          default: 'run.cmd'
+      showOutputNotifications:
+         type: 'boolean'
+         default: 'true'
       showErrorNotifications:
          type: 'boolean'
          default: 'true'
@@ -28,6 +31,7 @@ module.exports = ExecuteCommand =
    execute: ->
       comName = atom.config.get 'execute-command.command'
       errorNt = atom.config.get 'execute-command.showErrorNotifications'
+      outNt = atom.config.get 'execute-command.showOutputNotifications'
       com = comName
 
       # Execute the command
@@ -35,3 +39,7 @@ module.exports = ExecuteCommand =
       exec com, (error, stdout, stderr)->
          if stderr? and errorNt
             atom.notifications.addWarning "Error while executing command", {detail: stderr, dismissable: true}
+         if stdout? and outNt
+            atom.notifications.addSuccess "Command Output", {detail: stdout, dismissable: true}
+         if error?
+            console.error "Fatal error while executing command:", error
