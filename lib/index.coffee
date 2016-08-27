@@ -1,4 +1,5 @@
-exec = require('child_process').exec
+{exec} = require 'child_process'
+fs = require 'fs'
 {CompositeDisposable} = require 'atom'
 
 module.exports = ExecuteCommand =
@@ -11,10 +12,14 @@ module.exports = ExecuteCommand =
       logErrors:
          type: 'boolean'
          default: 'false'
+      errorLogFilename:
+         type: 'string'
+         default: 'error.txt'
+      showErrorNotifications:
+         type: 'boolean'
+         default: 'true'
 
    activate: (state) ->
-      atom.config.set 'execute-command.command', 'run.cmd'
-      atom.config.set 'execute-command.logErrors', 'false'
 
       # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
       @subscriptions = new CompositeDisposable
@@ -27,8 +32,26 @@ module.exports = ExecuteCommand =
       @subscriptions.dispose()
 
    execute: ->
-      com = atom.config.get('execute-command.command')
-      if atom.config.get('execute-command.logErrors')
-         com += "2>error.txt"
+      comName = atom.config.get('execute-command.command')
+      logErrors = atom.config.get('execute-command.logErrors')
+      errorFn = atom.config.get('execute-command.errorLogFilename')
+      errorNt = atom.config.get('execute-command.showErrorNotifications')
+      com = comName
+
+      # Check if we create an error log
+      if logErrors
+         com += " 2>#{errorFn}"
+         # Delete the old error file
+         exec "del #{errorFn}"
+
+      # Execute the command
       console.log "Executing #{com}"
       exec com
+
+      # Does the error file exist
+      if logErrors and errorNt
+         try
+            stats = fs.statSync errorFn
+            data = fs.readFileSync errorFn, 'utf-8'
+            console.warn "error while executing command: " + data
+            atom.notifications.addWarning "Execute Command Error", {detail: data, dismissable: true}
