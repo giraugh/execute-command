@@ -8,9 +8,13 @@ module.exports = ExecuteCommand =
       command:
          type: 'string'
          default: 'run.cmd'
+      logErrors:
+         type: 'boolean'
+         default: 'false'
 
    activate: (state) ->
       atom.config.set 'execute-command.command', 'run.cmd'
+      atom.config.set 'execute-command.logErrors', 'false'
 
       # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
       @subscriptions = new CompositeDisposable
@@ -23,5 +27,8 @@ module.exports = ExecuteCommand =
       @subscriptions.dispose()
 
    execute: ->
-      console.log "Executing #{atom.config.get('execute-command.command')}"
-      exec atom.config.get('execute-command.command')
+      com = atom.config.get('execute-command.command')
+      if atom.config.get('execute-command.logErrors')
+         com += "2>error.txt"
+      console.log "Executing #{com}"
+      exec com
