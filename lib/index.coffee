@@ -15,6 +15,9 @@ module.exports = ExecuteCommand =
       showErrorNotifications:
          type: 'boolean'
          default: 'true'
+      muteNotificationRegex:
+         type: 'string'
+         default: ''
 
    activate: (state) ->
 
@@ -32,14 +35,17 @@ module.exports = ExecuteCommand =
       comName = atom.config.get 'execute-command.command'
       errorNt = atom.config.get 'execute-command.showErrorNotifications'
       outNt = atom.config.get 'execute-command.showOutputNotifications'
+      mute = atom.config.get 'execute-command.muteNotificationRegex'
       com = comName
 
       # Execute the command
       console.log "Executing #{com}"
       exec com, (error, stdout, stderr)->
          if stderr? and errorNt
-            atom.notifications.addWarning "Error while executing command", {detail: stderr, dismissable: true}
+            if mute is "" or not RegExp(mute).test(stderr)
+               atom.notifications.addWarning "Error while executing command", {detail: stderr, dismissable: true}
          if stdout? and outNt
-            atom.notifications.addSuccess "Command Output", {detail: stdout, dismissable: true}
+            if mute is "" or not RegExp(mute).test(stdout)
+               atom.notifications.addSuccess "Command Output", {detail: stdout, dismissable: true}
          if error?
             console.error "Fatal error while executing command:", error
