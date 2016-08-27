@@ -30,10 +30,6 @@ module.exports = ExecuteCommand =
       errorNt = atom.config.get 'execute-command.showErrorNotifications'
       com = comName
 
-      # Check if we create an error log
-      if logErrors
-         com += " 2>#{errorFn}"
-
       # Execute the command
       console.log "Executing #{com}"
       exec com, (error, stdout, stderr)->
