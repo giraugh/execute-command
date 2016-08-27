@@ -18,6 +18,9 @@ module.exports = ExecuteCommand =
       muteNotificationRegex:
          type: 'string'
          default: ''
+      regexUnmutesInstead:
+         type: 'boolean'
+         default: 'false'
 
    activate: (state) ->
 
@@ -36,16 +39,22 @@ module.exports = ExecuteCommand =
       errorNt = atom.config.get 'execute-command.showErrorNotifications'
       outNt = atom.config.get 'execute-command.showOutputNotifications'
       mute = atom.config.get 'execute-command.muteNotificationRegex'
+      unmute = atom.config.get 'execute-command.regexUnmutesInstead'
       com = comName
 
       # Execute the command
       console.log "Executing #{com}"
       exec com, (error, stdout, stderr)->
          if stderr? and errorNt
-            if mute is "" or not RegExp(mute).test(stderr)
-               atom.notifications.addWarning "Error while executing command", {detail: stderr, dismissable: true}
+            show = true
+            if mute is "" or not RegExp(mute).test(stderr) then show = true
+            if unmute and RegExp(mute).test(stderr) then show = true else show = false
+            atom.notifications.addWarning "Error while executing command", {detail: stderr, dismissable: true} if show
+
          if stdout? and outNt
-            if mute is "" or not RegExp(mute).test(stdout)
-               atom.notifications.addSuccess "Command Output", {detail: stdout, dismissable: true}
+            if mute is "" or not RegExp(mute).test(stdout) then show = true
+            if unmute and RegExp(mute).test(stdout) then show = true else show = false
+            atom.notifications.addSuccess "Command Output", {detail: stdout, dismissable: true} if show
+            
          if error?
             console.error "Fatal error while executing command:", error
